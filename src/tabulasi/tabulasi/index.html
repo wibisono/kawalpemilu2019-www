@@ -575,9 +575,12 @@
       let get_sum_fn = function (key) {
         return (i, data) => get_sum(data, key)
       };
+      let persen = function(value){
+          var p = value[1] ? Math.round(value[0] / value[1] * 10000) / 100 : 0
+          return p;
+      }
       let format_persen_fn = function (value) {
-        var p = value[1] ? Math.round(value[0] / value[1] * 10000) / 100 : 0
-        return p.toLocaleString('id') + '%'
+        return persen(value).toLocaleString('id') + '%'
       };
       let thousands = function (value) {
         return value.toLocaleString('id')
@@ -597,6 +600,11 @@
         var p = format_persen_fn(value)
         return '<span class="n">' + thousands(value[0]) + '</span><span class="p">(' + p + ' data KPU)</span>'
       };
+      let format_tps_persen_paslon= function (value) {
+        var p = format_persen_fn(value)
+        return '<span class="n">' + thousands(value[0]) + '</span><span class="p">(' + p + ')</span>'
+      };
+
       let plus_min = function (value) {
         if (value <= 0) return value
         return '+' + value
@@ -760,15 +768,47 @@
           },
         ],
         'pilpres': [
-          {
+            {
             t: 'Jokowi-Amin',
-            fn: get_sum_fn('pas1'),
-            rumus: '(P1)',
+            rumus: '(P1)<br>(P1/SS)%',
+            fn: function (i, data) {
+              return [
+                get_sum(data, 'pas1'),
+                get_sum(data, 'sah'),
+              ]
+            },
+            format: format_tps_persen_paslon,
+            acc_init: [0, 0],
+            acc_fn: function (a, b) { return [a[0] + b[0], a[1] + b[1]] },
+            acc_format: format_tps_persen_paslon,
+            title_fn: function (value, i, data) {
+              return thousands(value[0]) + ' dari ' + thousands(value[1]) + ' suara sah'
+            },
+            acc_title_fn: function (value, i, data) {
+              return thousands(value[0]) + ' dari ' + thousands(value[1]) + ' suara sah'
+            },
+            sort_value_fn: value => -value[0] // kalo mau persen value => persen(value)
           },
           {
             t: 'Prabowo-Sandi',
-            fn: get_sum_fn('pas2'),
-            rumus: '(P2)',
+            rumus: '(P2)<br>(P2/SS)%',
+            fn: function (i, data) {
+              return [
+                get_sum(data, 'pas2'),
+                get_sum(data, 'sah'),
+              ]
+            },
+            format: format_tps_persen_paslon,
+            acc_init: [0, 0],
+            acc_fn: function (a, b) { return [a[0] + b[0], a[1] + b[1]] },
+            acc_format: format_tps_persen_paslon,
+            title_fn: function (value, i, data) {
+              return thousands(value[0]) + ' dari ' + thousands(value[1]) + ' suara sah'
+            },
+            acc_title_fn: function (value, i, data) {
+              return thousands(value[0]) + ' dari ' + thousands(value[1]) + ' suara sah'
+            },
+            sort_value_fn: value => -value[0] // kalo mau persen value => persen(value)
           },
           {
             t: 'Suara Sah', fn: function (i, data) {
